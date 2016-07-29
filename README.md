@@ -1,4 +1,4 @@
-# data-mining-and-ml
+# Data mining and machine learning
 
 The purpose of this course project is to get you hands-on experience with text mining,
 and specifically with text classification. You will be working with real-life data taken
