@@ -59,6 +59,7 @@ themselves.
 
 [1] Cohen A. Optimizing feature representation for automated systematic review work
 prioritization. AMIA Annu Symp Proc 2008:121-5
+
 [2] Matwin, Kouznetsov, A., S., Inkpen, D., Frunza, O., O’Blenis, P. “Using Factorized
 Complement Naïve Bays and weight Engineering for Reducing Workload in Evidence-
 Based Medicine Systematic Reviews”, Journal of the American Medical Informatics
