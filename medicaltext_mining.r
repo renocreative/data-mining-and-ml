@@ -3,24 +3,32 @@
 # Pre-processing
 # Data Representation & Feature selection
 estrogens_dataset = read.csv("units_Estrogens.txt",header=TRUE)
-gsub(',', ';', estrogens_dataset)
-gsub('\*\*\*\*\*\* \d+', '', estrogens_dataset)
-gsub('\r-', ',', estrogens_dataset)
-gsub('---K', '', estrogens_dataset)
-gsub('---[A-Z]', estrogens_dataset)
-gsub('_', '', estrogens_dataset)
 
-#1)	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
-#2)	Remove all “\*\*\*\*\*\* \d+” 	[document ids]
-#3)	Replace all “\r-” by ”,” (Remove all carriage returns)
-#4)	Remove all “,---K”      (Remove attribute name “K”. “K” represent the class of a given document)
-#5)	Remove all “---[A-Z]” (Remove all other attribute names)
-#6)	Replace all “_” by ” ”   (Separate the MeSH id into meaningful words)
-#7)	Add "K,T,A,P,M" at the first line to the file and save as a ".csv"
+# 1.	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
+estrogens_dataset = gsub(',', ';', estrogens_dataset)
+
+# 2.	Remove all “\*\*\*\*\*\* \d+” 	[document ids]
+estrogens_dataset = gsub('\*\*\*\*\*\* \d+', '', estrogens_dataset)
+
+# 3.	Replace all “\r-” by ”,” (Remove all carriage returns)
+estrogens_dataset = gsub('\r-', ',', estrogens_dataset)
+
+# 4.	Remove all “,---K”      (Remove attribute name “K”. “K” represent the class of a given document)
+estrogens_dataset = gsub('---K', '', estrogens_dataset)
+
+# 5.	Remove all “---[A-Z]” (Remove all other attribute names)
+estrogens_dataset = gsub('---[A-Z]', estrogens_dataset)
+
+# 6.	Replace all “_” by ” ”   (Separate the MeSH id into meaningful words)
+estrogens_dataset = gsub('_', '', estrogens_dataset)
+
+# 7.	Add "K,T,A,P,M" at the first line to the file and save as a ".csv"
+dataset = c(estrogens_dataset[,2:5], estrogens_dataset[,1])
+
 
 #weka.filters.unsupervised.attribute.NominalToString -C 2-3,5
 fctr.cols <- sapply(X, is.factor)
-fctr.cols = fctr.cols.remove(0) 
+fctr.cols = fctr.cols.remove(1) 
 X[, fctr.cols] <- sapply(X[, fctr.cols], as.character)
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
