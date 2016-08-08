@@ -2,7 +2,7 @@
 
 # Pre-processing
 # Data Representation & Feature selection
-estrogens_dataset <- read.csv("units_Estrogens.txt",header=TRUE)
+estrogens_dataset <- read.csv("units_Estrogens.txt",header=FALSE)
 
 # 1.	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
 estrogens_dataset <- gsub(',', ';', estrogens_dataset)
@@ -23,17 +23,21 @@ estrogens_dataset <- gsub('---[A-Z]', estrogens_dataset)
 estrogens_dataset <- gsub('_', '', estrogens_dataset)
 
 # 7.	Add "K,T,A,P,M" at the first line to the file and save as a ".csv"
-estrogens_dataset = c(estrogens_dataset[,2:5], estrogens_dataset[,1])
+colnames(estrogens_dataset) <- c('K','T','A','P','M')
 
 
 #weka.filters.unsupervised.attribute.NominalToString -C 2-3,5
-fctr.cols <- sapply(X, is.factor)
-fctr.cols <- fctr.cols.remove(1).remove(4) 
-X[, fctr.cols] <- sapply(X[, fctr.cols], as.character)
+fctr.cols <- sapply(estrogens_dataset, is.factor)
+fctr.cols <- fctr.cols[c(2, 3, 5)]
+estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.character)
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
+estrogens_dataset = c(estrogens_dataset[,2:5], estrogens_dataset[,1])
 
-#weka.filters.unsupervised.attribute.StringToWordVector –R 2-3,5 –W 10000 –prune-rate -1.0 –C –N 0 –L –S –stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
+#weka.filters.unsupervised.attribute.StringToWordVector –R 2-3,5 –W 10000 –prune-rate -1.0 –C –N 0 –L –S 
+#–stemmer weka.core.stemmers.NullStemmer –M 1 
+#–tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
+
 
 #AttributeEvaluator = weka.attributeSelection.InfoGainAttributeEval
 InfoGainAttributeEval(formula, data, subset, na.action, control = NULL)
