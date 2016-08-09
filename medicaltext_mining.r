@@ -44,16 +44,17 @@ LovinsStemmer(estrogens_dataset, control = NULL)
 #–tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 estrogens_dataset <- WordTokenizer(estrogens_dataset, control = NULL)
 
-
 #AttributeEvaluator = weka.attributeSelection.InfoGainAttributeEval
-InfoGainAttributeEval(K ~ ., data = estrogens_dataset, control = NULL)
+estrogens_dataset <- InfoGainAttributeEval(K ~ ., data = estrogens_dataset, control = NULL)
 
 #SearchMethod = weka.attributeSelection.Ranker -T 0 -N -1
-abstract_selector <- make_Weka_filter("weka/filters/supervised/attribute/AttributeSelection")
-ranker <- abstract_selector(K ~ ., data=estrogens_dataset, control = Weka_control(S = list("weka.attributeSelection.Ranker -T 0 -N -1")))
+ranker <- make_Weka_filter("weka/filters/supervised/attribute/AttributeSelection")
+estrogens_dataset <- ranker(K ~ ., data=estrogens_dataset, control = Weka_control(S = list("weka.attributeSelection.Ranker -T 0 -N -1")))
 
 #weka.filters.unsupervised.attribute.Remove -V –R
-
+remover <- make_Weka_filter("weka/filters/unsupervised/attribute/Remove -V -R")
+estrogens_dataset <- remover(K ~ ., data=estrogens_dataset)
+ 
 
 # we end up with a ready-to-mine dataset with the relevant 184 features
 # we save this model
