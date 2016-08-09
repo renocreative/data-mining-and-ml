@@ -38,7 +38,7 @@ estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.char
 #–stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 word2vec <- make_Weka_filter("weka/filters/unsupervised/attribute/StringToWordVector") 
 
-estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R=list("2-3", "5"), W = 10000, prune-rate = -1, C = true, N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
+estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5"), W = 10000, prune-rate = -1, C = true, N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
 
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
