@@ -46,18 +46,14 @@ estrogens_dataset <- WordTokenizer(estrogens_dataset, control = NULL)
 
 
 #AttributeEvaluator = weka.attributeSelection.InfoGainAttributeEval
-InfoGainAttributeEval(formula, data, subset, na.action, control = NULL)
+InfoGainAttributeEval(K ~ ., data = estrogens_dataset, control = NULL)
 
 #SearchMethod = weka.attributeSelection.Ranker -T 0 -N -1
-nombi <-
-> make_Weka_filter("weka/filters/supervised/attribute/AttributeSelection")
-datbin<- nombi(gene ~., data=X1X2X3X4W,  control =Weka_control(
-> S=list("weka.attributeSelection.GeneticSearch"),
-> E=list("weka.attributeSelection.WrapperSubsetEval"),B =
-> list("weka.classifiers.trees.RandomForest -F 5 -T 0.01 -R 1 -- -I 10 -K
-> 0 -S 1")))
+abstract_selector <- make_Weka_filter("weka/filters/supervised/attribute/AttributeSelection")
+ranker <- abstract_selector(K ~ ., data=estrogens_dataset, control = Weka_control(S = list("weka.attributeSelection.Ranker -T 0 -N -1")))
 
 #weka.filters.unsupervised.attribute.Remove -V –R
+
 
 # we end up with a ready-to-mine dataset with the relevant 184 features
 # we save this model
