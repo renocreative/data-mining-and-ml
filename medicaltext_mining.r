@@ -52,6 +52,7 @@ InfoGainAttributeEval(formula, data, subset, na.action, control = NULL)
 # Model learning
 # 5x2 cross validation with NaiveBayes, SMO, J48, IBk, RandomForest, AdaBoostM1[w/ NaiveBayes]. 
 
+
 # We should get:
 # Classifier	AUC (On Average)
 # NaiveBayes	0.924783
