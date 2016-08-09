@@ -10,11 +10,11 @@ estrogens_dataset <- read.csv("units_Estrogens.txt", header=FALSE)
 # 1.	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
 estrogens_dataset <- gsub(',', ';', estrogens_dataset)
 
-# 2.	Remove all “\*\*\*\*\*\* \d+” 	[document ids]
-estrogens_dataset <- gsub('\*\*\*\*\*\* \d+', '', estrogens_dataset)
+# 2.	Remove all “\\*\\*\\*\\*\\*\\* \\d+” 	[document ids]
+estrogens_dataset <- gsub('\\*\\*\\*\\*\\*\\* \\d+', '', estrogens_dataset)
 
-# 3.	Replace all “\r-” by ”,” (Remove all carriage returns)
-estrogens_dataset <- gsub('\r-', ',', estrogens_dataset)
+# 3.	Replace all “\\r-” by ”,” (Remove all carriage returns)
+estrogens_dataset <- gsub('\\r-', ',', estrogens_dataset)
 
 # 4.	Remove all “,---K”      (Remove attribute name “K”. “K” represent the class of a given document)
 estrogens_dataset <- gsub('---K', '', estrogens_dataset)
@@ -38,7 +38,7 @@ estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.char
 #–stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 word2vec <- make_Weka_filter("weka/filters/unsupervised/attribute/StringToWordVector") 
 
-estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5"), W = 10000, prune-rate = -1, C = true, N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
+estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5", W = 10000, prune_rate = -1, C = true, N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
 
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
@@ -86,7 +86,7 @@ eval_IBk <- evaluate_Weka_classifier(estrogens_IBk, numFolds = 5, repeats = 2, c
 
 #RandomForest
 #estrogens_forest <- make_Weka_classifier("weka/classifiers/trees/RandomForest")
-estrogens_forest <- Bagging(K ~ ., data = estrogens_dataset, control = Weka_control(W = "weka.classifiers.trees.RandomForest")
+estrogens_forest <- Bagging(K ~ ., data = estrogens_dataset, control = Weka_control(W = "weka.classifiers.trees.RandomForest"))
 eval_forest <- evaluate_Weka_classifier(estrogens_forest, numFolds = 5, repeats = 2, complexity = FALSE, seed = 1, class = TRUE)
 
 # AdaBoostM1
