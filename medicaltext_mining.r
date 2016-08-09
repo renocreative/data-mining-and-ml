@@ -5,7 +5,7 @@ library(pROC)
 
 # Pre-processing
 # Data Representation & Feature selection
-estrogens_dataset <- read.csv("units_Estrogens.txt",header=FALSE)
+estrogens_dataset <- read.csv("units_Estrogens.txt", header=FALSE)
 
 # 1.	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
 estrogens_dataset <- gsub(',', ';', estrogens_dataset)
@@ -38,14 +38,11 @@ estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.char
 #–stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 word2vec <- make_Weka_filter("weka/filters/unsupervised/attribute/StringToWordVector") 
 
-estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control( 
-R=list("2-3", "5"), W = 10000, prune-rate = -1, C = true, N = 0, L = true, S = true, 
-stemmer = list("weka.core.stemmers.NullStemmer –M 1"),
-tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
+estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R=list("2-3", "5"), W = 10000, prune-rate = -1, C = true, N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
 
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
-estrogens_dataset = c(estrogens_dataset[,2:5], estrogens_dataset[,1])
+estrogens_dataset <- c(estrogens_dataset[,2:5], estrogens_dataset[,1])
 
 #–stemmer weka.core.stemmers.NullStemmer –M 1 
 #estrogens_dataset <- LovinsStemmer(estrogens_dataset, control = Weka_control(M = 1))
@@ -72,11 +69,11 @@ estrogens_dataset <- remover(K ~ ., data=estrogens_dataset)
 # WOW("weka/classifiers/bayes/NaiveBayes")
 
 # LazyBayes
-estrogens_bayes = LBR(K ~ ., data = estrogens_dataset)
+estrogens_bayes <- LBR(K ~ ., data = estrogens_dataset)
 eval_bayes <- evaluate_Weka_classifier(estrogens_bayes, numFolds = 5, repeats = 2, complexity = FALSE, seed = 1, class = TRUE)
 
 # SMO
-estrogens_smo = SMO(K ~ ., data = estrogens_dataset, control = Weka_control(K = list("weka.classifiers.functions.supportVector.RBFKernel", G = 2)))
+estrogens_smo <- SMO(K ~ ., data = estrogens_dataset, control = Weka_control(K = list("weka.classifiers.functions.supportVector.RBFKernel", G = 2)))
 eval_smo <- evaluate_Weka_classifier(estrogens_smo, numFolds = 5, repeats = 2, complexity = FALSE, seed = 1, class = TRUE)
 
 # J48
