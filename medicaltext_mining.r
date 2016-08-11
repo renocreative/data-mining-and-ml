@@ -2,30 +2,38 @@
 
 library(RWeka)
 library(pROC)
+library(readr)
+
 
 # Pre-processing
 # Data Representation & Feature selection
-estrogens_dataset <- read.csv("units_Estrogens.txt", header=FALSE)
+estrogens_dataset <- read_file("units_Estrogens.txt")
 
 # 1.	Replace all “,” by ”;”   (“,” are special character of separation for .csv files)
 estrogens_dataset <- gsub(',', ';', estrogens_dataset)
 
-# 2.	Remove all “\\*\\*\\*\\*\\*\\* \\d+” 	[document ids]
-estrogens_dataset <- gsub('\\*\\*\\*\\*\\*\\* \\d+', '', estrogens_dataset)
+# 3.	Replace all “\\r” by ”,” (Replace all carriage returns with comma separation / csv format)
+estrogens_dataset <- gsub('\\r', ',', estrogens_dataset)
 
-# 3.	Replace all “\\r-” by ”,” (Remove all carriage returns)
-estrogens_dataset <- gsub('\\r-', ',', estrogens_dataset)
+# 2.	Replace all “\\*\\*\\*\\*\\*\\* \\d+” 	[document ids] with carriage returns to separate data (csv format)
+estrogens_dataset <- gsub('\\*\\*\\*\\*\\*\\* \\d+', '\r', estrogens_dataset)
 
-# 4.	Remove all “,---K”      (Remove attribute name “K”. “K” represent the class of a given document)
-estrogens_dataset <- gsub('---K', '', estrogens_dataset)
+# 4.	Remove all “,----K”      (Remove attribute name “K”. “K” represent the class of a given document)
+estrogens_dataset <- gsub(',----K', '', estrogens_dataset)
 
-# 5.	Remove all “---[A-Z]” (Remove all other attribute names)
-estrogens_dataset <- gsub('---[A-Z]', estrogens_dataset)
+# 5.	Remove all “----[A-Z]” (Remove all other attribute names)
+estrogens_dataset <- gsub('----[A-Z]', '', estrogens_dataset)
 
 # 6.	Replace all “_” by ” ”   (Separate the MeSH id into meaningful words)
-estrogens_dataset <- gsub('_', '', estrogens_dataset)
+estrogens_dataset <- gsub('_', ' ', estrogens_dataset)
 
-# 7.	Add "K,T,A,P,M" at the first line to the file and save as a ".csv"
+#7.      	Save processed file for debugging
+write (estrogens_dataset, file="units_Estrogens_processed.txt")
+
+#8.		Reload processed file in order for classification task
+estrogens_dataset <- read.csv("units_Estrogens_processed.txt", header=FALSE, sep = ",")
+
+# 9.	Add "K,T,A,P,M" as colum names of the dataset
 colnames(estrogens_dataset) <- c('K','T','A','P','M')
 
 
@@ -38,8 +46,8 @@ estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.char
 #–stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 word2vec <- make_Weka_filter("weka/filters/unsupervised/attribute/StringToWordVector") 
 
-estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5", W = 10000, prune_rate = -1, C = true, 
-N = 0, L = true, S = true, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), 
+estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5", W = 10000, prune_rate = -1, C = TRUE, 
+N = 0, L = TRUE, S = TRUE, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), 
 tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
 
 
