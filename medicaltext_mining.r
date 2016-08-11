@@ -36,39 +36,37 @@ estrogens_dataset <- read.csv("units_Estrogens_processed.txt", header=FALSE, sep
 # 9.	Add "K,T,A,P,M" as colum names of the dataset
 colnames(estrogens_dataset) <- c('K','T','A','P','M')
 
-
-#weka.filters.unsupervised.attribute.NominalToString -C 2-3,5
+#10. 	weka.filters.unsupervised.attribute.NominalToString -C 2-3,5
 fctr.cols <- sapply(estrogens_dataset, is.factor)
-fctr.cols <- fctr.cols[c(2, 3, 5)]
-estrogens_dataset[, fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.character)
+fctr.cols <- c(2, 3, 5)
+estrogens_dataset[,  fctr.cols] <- sapply(estrogens_dataset[, fctr.cols], as.character)
+
+#11.    	Convert the classification feature "K" to a factor variable
+#estrogens_dataset$K <- factor(estrogens_dataset$K)
 
 #weka.filters.unsupervised.attribute.StringToWordVector –R 2-3,5 –W 10000 –prune-rate -1.0 –C –N 0 –L –S 
 #–stemmer weka.core.stemmers.NullStemmer –M 1 –tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
 word2vec <- make_Weka_filter("weka/filters/unsupervised/attribute/StringToWordVector") 
-
-estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2-3,5", W = 10000, prune_rate = -1, C = TRUE, 
-N = 0, L = TRUE, S = TRUE, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), 
-tokenizer = list("weka.core.tokenizers.WordTokenizer –delimiters \" \\r\\n\\t.,;:\\\'\\\"()?!\""))) 
-
+estrogens_dataset <- word2vec(K ~ ., data = estrogens_dataset, control = Weka_control(R="2,3,5", W = 10000, C = TRUE, P="attr-",
+N = 0, L = TRUE, stemmer = list("weka.core.stemmers.NullStemmer –M 1"), tokenizer = list("weka.core.tokenizers.WordTokenizer") ) ) 
 
 #weka.filters.unsupervised.attribute.Reorder -R 2-last,first
-estrogens_dataset <- c(estrogens_dataset[,2:5], estrogens_dataset[,1])
-
-#–stemmer weka.core.stemmers.NullStemmer –M 1 
-#estrogens_dataset <- LovinsStemmer(estrogens_dataset, control = Weka_control(M = 1))
-#–tokenizer “weka.core.tokenizers.WordTokenizer –delimiters \” \\r\\n\\t.,;:\\\’\\\”()?!\””
-#estrogens_dataset <- WordTokenizer(estrogens_dataset, control = Weka_control(delimiters = "\" \\r\\n\\t.,;:\\\'\\\"()?!\""))
+#estrogens_dataset <- rbind(estrogens_dataset[,0:-1], estrogens_dataset[,1])
 
 #AttributeEvaluator = weka.attributeSelection.InfoGainAttributeEval
-estrogens_dataset <- InfoGainAttributeEval(K ~ ., data = estrogens_dataset, control = NULL)
+evaluator <- InfoGainAttributeEval(K ~ ., data = estrogens_dataset, control = NULL)
 
 #SearchMethod = weka.attributeSelection.Ranker -T 0 -N -1
 ranker <- make_Weka_filter("weka/filters/supervised/attribute/AttributeSelection")
-estrogens_dataset <- ranker(K ~ ., data=estrogens_dataset, control = Weka_control(S = list("weka.attributeSelection.Ranker -T 0 -N -1")))
+rankings <- ranker(K ~ ., data=estrogens_dataset, control = Weka_control(S = list("weka.attributeSelection.Ranker -T 0 -N 500"),
+E = list("weka.attributeSelection.InfoGainAttributeEval")))
+attributes <- colnames(rankings)
 
 #weka.filters.unsupervised.attribute.Remove -V –R
-remover <- make_Weka_filter("weka/filters/unsupervised/attribute/Remove -V -R")
-estrogens_dataset <- remover(K ~ ., data=estrogens_dataset)
+attr_indexes <- sapply(attributes, grep, x=colnames(estrogens_dataset))
+remover <- make_Weka_filter("weka/filters/unsupervised/attribute/Remove")
+indexes <- paste (c(attr_indexes, recursive = TRUE), collapse=",")
+estrogens_dataset <- remover(K ~ ., data=estrogens_dataset, control = Weka_control(V=TRUE, R=indexes))
  
 
 # we end up with a ready-to-mine dataset with the relevant 184 features
@@ -79,6 +77,7 @@ estrogens_dataset <- remover(K ~ ., data=estrogens_dataset)
 # WOW("weka/classifiers/bayes/NaiveBayes")
 
 # LazyBayes
+LBR <- make_Weka_classifier("weka/classifiers/lazy/LBR", c('LBR', 'Weka_lazy'), init=make_Weka_package_loader("lazyBayesianRules"))
 estrogens_bayes <- LBR(K ~ ., data = estrogens_dataset)
 eval_bayes <- evaluate_Weka_classifier(estrogens_bayes, numFolds = 5, repeats = 2, complexity = FALSE, seed = 1, class = TRUE)
 
