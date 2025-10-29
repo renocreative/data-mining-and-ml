@@ -1,4 +1,4 @@
-# Data mining and machine learning (CSI 5387, Summer 2012)
+# CSI 5387: Data mining and machine learning (Summer 2012)
 
 The purpose of this course project is to get you hands-on experience with text mining,
 and specifically with text classification. You will be working with real-life data taken
